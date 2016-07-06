@@ -18,7 +18,12 @@ dat.ycann <- read.csv("data/prevalenceyouthcannabis.csv",
 dat.ycoca <- read.csv("data/prevalenceyouthcocaine.csv",
                       stringsAsFactors = F) %>% 
   rename(year = Year.of.Estimate) %>% 
-  mutate(year = as.numeric(year))
+  mutate(year = as.numeric(year)) %>% 
+  dplyr::select(-10, -9) %>%
+  rename(ever.used = `X..of.young.people.who.ever.used`, 
+         alo.last.year = `X..of.young.people.who.used.at.least.once.in.the.past.year`, 
+         alo.last.month = `X..of.young.people.who.used.at.least.once.in.the.past.month`) 
+
 
 # Illicit drug use in prision
 dat.prision <- read.csv("data/illicitdruguseprision.csv",
