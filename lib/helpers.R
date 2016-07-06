@@ -1,4 +1,2 @@
-helper.function <- function()
-{
-  return(1)
-}
+library(ggplot2)
+theme_set(theme_bw())
