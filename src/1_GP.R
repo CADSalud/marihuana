@@ -6,7 +6,7 @@ tab.g <- df.general %>%
   filter(!is.na(total)) %>% 
   dplyr::select(country, total, year, source, drug) %>% 
   group_by(country, drug) %>% 
-  mutate(maxm = max(year)) %>% 
+  dplyr::mutate(maxm = max(year)) %>% 
   filter(year == maxm) %>% 
   group_by(country, year, drug) %>% 
   dplyr::summarise(total.prom = mean(total)) %>% 
@@ -14,11 +14,11 @@ tab.g <- df.general %>%
   dplyr::mutate(
     drug.nom = recode(drug, 
         "'opioids'='opioides';'tranqsed'='tranquilizantes'"),
-    periodo.nom = recode(periodo, 
-        "'annual'='ultimo año';'lifetime'='alguna vez';'x30.day'='último mes'")
+    periodo = 'anual',
+    periodo.nom = "anual"
   )
 head(tab.g)
-tab.g %>% filter(country == 'United States of America')
+tab.g %>% filter(country == 'Mexico')
 
 
 head(df.youth)
@@ -92,7 +92,11 @@ GGmap <- function(tab.sub, tipoedad){
 }
 
 
-# jovenes
+# mapas por droga y periodo de uso
 ddply(tab.y, .(drug, periodo), 
       function(sub){GGmap(sub, "adolescentes")}, 
+      .progress = 'text')
+
+ddply(tab.g, .(drug, periodo), 
+      function(sub){GGmap(sub, "general")}, 
       .progress = 'text')
