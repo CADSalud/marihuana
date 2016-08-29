@@ -1,6 +1,7 @@
 # Example preprocessing script.
 library(gdata)
 
+# • DATOS UN
 
 # Youth Prevalence
 noms.file <- paste0('data/py_', c('cannabis', 'cocaine', 'opioids', 'tranqsed'), '.xls')
@@ -107,4 +108,27 @@ deaths <- read.xls('data/drugrelateddeaths.xls', stringsAsFactors = F) %>%
          )
 names(deaths) <- tolower(names(deaths))
 head(deaths)
+
+
+
+# # • DATOS ENA
+library(foreign)
+
+hogar <- read.spss("data/ENA/tbl_hogar_hogar_2012-01-30.sav",
+                   to.data.frame = T)
+attributes(hogar)$variable.labels %>% 
+  data.frame() %>% 
+  write_csv("doc/ena_atrs_hogar.csv")
+
+integrantes <- read.spss("data/ENA/tbl_hogar_integrantes_2012-01-30.sav",
+                         to.data.frame = T)
+attributes(integrantes)$variable.labels %>% 
+  data.frame() %>% 
+  write_csv("doc/ena_atrs_integrantes.csv")
+
+individ <- read.spss("data/ENA/tbl_individual_seleccionados_2012-01-30.sav",
+                         to.data.frame = T)
+attributes(individ)$variable.labels %>% 
+  data.frame() %>% 
+  write_csv("doc/ena_atrs_individual.csv")
 
