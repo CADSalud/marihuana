@@ -17,7 +17,7 @@ df.youth <- lapply(noms.file, function(file.path){
   
   wb <- wb %>% 
     dplyr::rename(year = year.of.estimate) %>% 
-    mutate(
+    dplyr::mutate(
       drug = str_replace_all(str_split_fixed(file.path, '_', 2)[2], '.xls', ''),
       year = as.numeric(as.character(str_replace(year, '/.*', '') ))
     ) %>% 
@@ -42,7 +42,7 @@ df.general <- lapply(noms.file, function(file.path){
   names(wb) <- tolower(names(wb))
   
   wb <- wb %>% 
-    mutate(
+    dplyr::mutate(
       drug = str_replace_all(str_split_fixed(file.path, '_', 2)[2], '.xls', ''),
       year = as.numeric(str_sub(year, 1, 4))
       ) %>% 
@@ -92,7 +92,8 @@ deaths <- read.xls('data/drugrelateddeaths.xls', stringsAsFactors = F) %>%
   select(-X.2, -X, -X.1) %>% 
   gather(drug.raw, perc, Cannabis:Fatal.drug.overdoses....) %>% 
   left_join(tipo.df, by = 'drug.raw') %>% 
-  rename( country = Country...Territory, year = Year.of.Estimate, 
+  dplyr::rename( country = Country...Territory, 
+          year = Year.of.Estimate, 
           national.bin = National.estimate...Y.N., 
           deaths.num = Number.of.deaths, 
           ref.popul = Reference.population..15...64.., 
@@ -103,5 +104,7 @@ deaths <- read.xls('data/drugrelateddeaths.xls', stringsAsFactors = F) %>%
          ref.popul = as.numeric(str_replace_all(ref.popul, ',', '')),
          rate.mill = as.numeric(str_replace_all(rate.mill, ',', '')), 
          drug = tolower(drug)
-         ) 
+         )
+names(deaths) <- tolower(names(deaths))
 head(deaths)
+
