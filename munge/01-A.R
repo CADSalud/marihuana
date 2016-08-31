@@ -116,19 +116,20 @@ library(foreign)
 
 hogar <- read.spss("data/ENA/tbl_hogar_hogar_2012-01-30.sav",
                    to.data.frame = T)
-attributes(hogar)$variable.labels %>% 
-  data.frame() %>% 
-  write_csv("doc/ena_atrs_hogar.csv")
 
 integrantes <- read.spss("data/ENA/tbl_hogar_integrantes_2012-01-30.sav",
                          to.data.frame = T)
-attributes(integrantes)$variable.labels %>% 
-  data.frame() %>% 
-  write_csv("doc/ena_atrs_integrantes.csv")
 
 individ <- read.spss("data/ENA/tbl_individual_seleccionados_2012-01-30.sav",
                          to.data.frame = T)
+
+attributes(hogar)$variable.labels %>% 
+  as.data.frame(optional = F) %>% 
+  write.csv("doc/ena_atrs_hogar.csv")
+attributes(integrantes)$variable.labels %>% 
+  data.frame() %>% 
+  write.csv("doc/ena_atrs_integrantes.csv")
 attributes(individ)$variable.labels %>% 
   data.frame() %>% 
-  write_csv("doc/ena_atrs_individual.csv")
+  write.csv("doc/ena_atrs_individual.csv")
 
