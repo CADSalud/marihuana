@@ -320,11 +320,61 @@ percep <- individ %>%
   dplyr::select(folio, pond, 
                 evolucion = a325, 
                 a326a:a326g,
-                a327a:a327g,
-                rehabilitacion = a328,
-                a329:a341
-                )
+                a327a:a327h,
+                rehabilitacion = a328
+                ) %>% 
+  gather(var.lab, var.num, a326a:a326g) %>% 
+  mutate(var.lab = paste('adicto', fct_recode(var.lab,
+          enferma = 'a326a', debil = 'a326b', 
+          indep = 'a326c', egoista = 'a326d',
+          ayuda = 'a326e',delincuente = 'a326f', 
+          otra = 'a326g'
+        ), sep = "_"
+      )
+    ) %>% 
+  spread(var.lab, var.num) %>% 
+  gather(var.lab, var.num, a327a:a327h) %>% 
+  mutate(var.lab = paste('adiccion', fct_recode(var.lab,
+          mariguana = 'a327a', alucinógenos = 'a327b', 
+          cocaína = 'a327c', heroína = 'a327d',
+          inhalables = 'a327e', alochol = 'a327f', 
+          tabaco = 'a327g', otra = 'a327h'
+        ), sep = "_"
+      )
+    ) %>% 
+  spread(var.lab, var.num)
 
+percep.legal <- individ %>% 
+  dplyr::select(folio, pond, 
+                drogas_relviolencia = a329,
+                drogas_relaccidentes = a330,
+                mariguana_medicos = a331,
+                mariguana_legal = a332,
+                drogas_legal = a333,
+                a334:a341
+                ) %>% 
+  gather(var.lab, var.num, a334:a341) %>% 
+  mutate(var.lab = paste('cons', fct_recode(var.lab,
+             "aumentaría consumo" = 'a334',
+             "evitaría adulterar" = 'a335',
+             "mas gasto en adictos" ='a336',
+             "disminuiría seguridad" ='a337',
+             "narco perdería poder" = 'a338',
+             "fin disputas narcos" = 'a3381',
+             "menos enfermedades drogas" = 'a339',
+             "debilitarian valores morales/relig" = 'a340',
+             "drogas más baratas" = 'a341'
+          ), sep = "_"
+        )
+      ) %>% 
+  spread(var.lab, var.num)
+
+
+ 
+
+
+  
+  
 
 # 5. Venta drogas 
 venta <- individ %>% 
