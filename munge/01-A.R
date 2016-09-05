@@ -125,8 +125,9 @@ rm('tipo.df')
 # ≈≈≈≈≈ #
 library(foreign)
 
-# hogar <- read.spss("data/ENA/tbl_hogar_hogar_2012-01-30.sav",
-#                    to.data.frame = T)
+hogar <- read.spss("data/ENA/tbl_hogar_hogar_2012-01-30.sav",
+                   to.data.frame = T) %>% 
+  tbl_df()
 # 
 # integrantes <- read.spss("data/ENA/tbl_hogar_integrantes_2012-01-30.sav",
 #                          to.data.frame = T)
@@ -167,7 +168,7 @@ df.ingr <- individ %>%
       mutate(codigo = as.numeric(codigo)), 
     by = c('codigo', 'columna.nom')
   ) %>% 
-  select(-columna.nom, -codigo)
+  select(-columna.nom, ingreso.cod = codigo)
 
 # pob ocupada
 df.pocup <- individ %>% 
@@ -200,6 +201,7 @@ demos <- individ %>%
                 a006, a007, a008, a008a, #
                 a014a # ocupación
   ) %>% 
+  mutate(edad.cut = cut_width(edad, 6)) %>% 
   left_join(
     df.pocup, by = 'folio'
   ) %>% 
@@ -211,7 +213,7 @@ demos <- individ %>%
   ) %>% 
   rename(edo_civil = a006, religion = a007, 
          escolar = a008a, profesion = a014a)
-head(demos)
+head(demos %>% data.frame())
 rm('df.pocup', 'df.ingr', 'df.migrac')
 
 
