@@ -387,3 +387,21 @@ venta <- individ %>%
                 vivir_agradable = a321b,
                 detenidos = a3211
   )
+
+
+
+# Cache de bases
+cache('df.deaths')
+cache('df.general')
+cache('df.prision')
+cache('df.youth')
+
+cache('demos')
+cache('hogar')
+cache('individ')
+cache('percep')
+cache('percep.legal')
+cache('riesgo')
+cache('tolerancia')
+cache('usos')
+cache('venta')
