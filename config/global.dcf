@@ -2,10 +2,10 @@ version: 0.6
 data_loading: F
 cache_loading: TRUE
 recursive_loading: FALSE
-munging: T
+munging: F
 logging: FALSE
 load_libraries: T
-libraries: reshape2, dplyr, ggplot2, stringr, lubridate, tidyr, car, gdata, rworldmap, readr, forcats
+libraries: reshape2, dplyr, ggplot2, stringr, lubridate, tidyr, car, gdata, rworldmap, readr, forcats, modelr, splines
 as_factors: TRUE
 data_tables: FALSE
 attach_internal_libraries: FALSE
