@@ -20,7 +20,8 @@ print(venta, n = 3, width = Inf)
 print(usos, n = 3, width = Inf)
 
 tab <- usos %>% 
-  select(folio, pond, 
+  unite(folio.u, c(folio, pond), remove = F) %>% 
+  select(folio, folio.u, pond, 
          starts_with("algvez"), 
          starts_with("ult30"), 
          starts_with("ult12") ) %>% 
@@ -59,7 +60,11 @@ gg <- ggplot(gg.tab.tot,
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ggsave("graphs/ena_inctot.png", gg, width = 8, height = 4)
 
-
+gg.tab.tot %>% 
+  ungroup %>% 
+  select(periodo, droga, porc) %>% 
+  spread(periodo, porc) %>% 
+  write.table(row.names = F, sep = ",")
 
 # genero
 gg.tab <- tab %>% 
@@ -82,6 +87,24 @@ gg <- ggplot(gg.tab, aes(x = sexo_h, y = porc,
   ylab('Incidencia (%)') + 
   xlab('Género')
 ggsave("graphs/ena_incgenero.png", gg, width = 12, height = 5)
+
+
+gg.tab <- tab %>%
+  filter(var.num == 1) %>% 
+  group_by(periodo, droga, sexo_h) %>% 
+  summarise(frec = sum(pond)) %>% 
+  group_by(periodo, droga) %>% 
+  mutate(porc = frec/sum(frec)) %>% 
+  filter(droga != 'otras')
+gg.tab %>% group_by(periodo, droga) %>% summarise(sum(porc))
+gg <- ggplot(gg.tab, aes(x = sexo_h, y = porc, 
+                         group = periodo, fill = periodo))  + 
+  geom_bar(stat = 'identity', position = 'dodge') +
+  facet_wrap(~ droga, scales = 'free_y', nrow = 2) +
+  scale_y_continuous(labels = function(x)round(100*x,1)) + 
+  ylab('Incidencia (%)') + 
+  xlab('Género')
+ggsave("graphs/ena_incgenero2.png", gg, width = 12, height = 5)
 
 
 # edad cut
@@ -142,6 +165,14 @@ GGBiplotEdad(per.selec = 'algvez')
 
 
 # ingreso
+tab %>% 
+  group_by(ingreso.cod) %>% 
+  summarise(n(), sum(pond))
+  group_by(var.lab, var.num) %>% 
+  dplyr::summarise(frec.pond = sum(pond)) %>% 
+  group_by(var.lab) %>% 
+  mutate( porc = frec.pond/sum(frec.pond)) 
+
 gg.tab <- tab %>% 
   group_by(ingreso.cod) %>% 
   do(IncPond(sub = .))  %>% 
@@ -156,7 +187,7 @@ gg.tab <- tab %>%
 
 gg <- ggplot(gg.tab, aes(x = ingreso.cod, y = porc, 
                          group = periodo, color = periodo))  + 
-  geom_point(alpha = .1) +
+  geom_point(alpha = .6) +
   geom_smooth(span = 1.3, se = F) + 
   facet_wrap(~ droga, scales = 'free_y') +
   scale_y_continuous(labels = function(x)round(100*x,1)) + 
@@ -181,8 +212,8 @@ GGBiplotIng <- function(per.selec){
     mutate(predst = exp(preds)-.01) %>% 
     select(droga, ingreso.cod, predst) %>% 
     spread(droga, predst)
-  pc <- princomp(Perfiles(as.matrix(tab.fin[, -1]), 'c' ), cor = T)
-  gg <- ggbiplot(pc, scale = .4, labels = 1:8, 
+  pc <- princomp(Perfiles(as.matrix(tab.fin[, -1]), 'd' ), cor = T)
+  gg <- ggbiplot(pc, scale = .3, labels = 1:8, 
                  labels.size = 4)+ 
     theme(axis.text = element_blank()) +
     ggtitle(per.selec) 
@@ -219,6 +250,7 @@ df.edos <- hogar %>%
          ent = str_trim(ent),
          id = car::recode(idorig, "5 = 7; 6 = 8; 7 = 5; 8 = 6")
                      ) 
+library(maptools)
 edo <- readShapeSpatial("data/mex_edos/Mex_Edos")
 edo@data$id <- rownames(edo@data)
 edo_df<- edo %>%
@@ -267,8 +299,4 @@ GGMapPrev('algvez', filter(gg.tab, droga == 'inhalables'))
 
 
 
-
-
-
-
-
+# Consumo compartido
