@@ -1,5 +1,5 @@
 library(ProjectTemplate)
-reload.project()
+load.project()
 
 print(percep, n = 3, width = Inf)
 print(percep.legal, n = 3, width = Inf)
@@ -16,7 +16,12 @@ percep.u <- percep %>%
     ) %>%
   left_join(percep.legal) %>% 
   left_join(venta) %>% 
-  left_join(prevdrogas)
+  left_join(prevdrogas) %>% 
+  mutate(edadinic_mariguana = parse_number(edadinic_mariguana),
+         edadinic_mariguana = ifelse(edadinic_mariguana>100,100, edadinic_mariguana),
+         edadinic_alcohol = parse_number(edadinic_alcohol), 
+         edadinic_alcohol = ifelse(edadinic_alcohol>100,100, edadinic_alcohol)
+         )
 dim(percep.u) # 16249
 print(percep.u, n=3, width = Inf)
 
@@ -131,26 +136,52 @@ percep.u %>%
   mutate(porc = frec/sum(frec)) %>% 
   write.table(row.names = F, sep = ",")
 
+# edad inicial
 percep.u %>% 
   select(folio, pond, mariguana, edadinic_mariguana) %>% 
   filter(!is.na(edadinic_mariguana)) %>%
   mutate(edadinic_mariguana = as.numeric(edadinic_mariguana) ) %>% 
   summarise( prom.pond = sum(edadinic_mariguana*pond)/sum(pond), 
              prom = mean(edadinic_mariguana, rm = T),
-             median = median(edadinic_mariguana, na.rm = T)
-             )%>% 
+             median = wtd.quantile(edadinic_mariguana, pond, probs = .5, na.rm = T)
+             ) %>% 
   write.table(row.names = F, sep = ",")
+qts <- wtd.Ecdf(as.numeric(percep.u$edadinic_mariguana), percep.u$pond)
+gg <- ggplot(data.frame(x= qts$x, y= 100*qts$ecdf), 
+       aes( x= x, y = y))+ 
+  geom_hline(aes(yintercept = 50), alpha = .5, color = 'darkgreen') +
+  geom_ribbon( aes(ymin = 25, ymax = 75), alpha = .15, fill = 'darkgreen') + 
+  geom_ribbon( aes(ymin = 5, ymax = 95), alpha = .15, fill = 'darkgreen') + 
+  geom_line(size = 1) + 
+  geom_label(x = 18, y = qts$ecdf[qts$x == 18]*100, 
+             label = round(qts$ecdf[qts$x == 18]*100)) +
+  scale_x_continuous(breaks = 6*(1:16))  +
+  ylab('Porcentaje Acumulado Población') + 
+  xlab('Edad de Inicio\nMariguana') 
+ggsave(filename = "graphs/graphs_ena/edadecdf_mariguana.png", gg, width = 5.5, height = 4)
+
 
 percep.u %>% 
   select(folio, pond, mariguana, edadinic_alcohol) %>% 
   filter(!is.na(edadinic_alcohol)) %>%
-  mutate(edadinic_mariguana = as.numeric(edadinic_alcohol) ) %>% 
   summarise( prom.pond = sum(edadinic_alcohol*pond)/sum(pond), 
              prom = mean(edadinic_alcohol, na.rm = T),
-             median = median(edadinic_alcohol, na.rm = T)
+             median = wtd.quantile(edadinic_alcohol, pond, probs = .5, na.rm = T)
              ) %>% 
   write.table(row.names = F, sep = ",")
-  
+qts <- wtd.Ecdf(as.numeric(percep.u$edadinic_alcohol), percep.u$pond)
+gg <- ggplot(data.frame(x= qts$x, y= 100*qts$ecdf), 
+             aes( x= x, y = y))+ 
+  geom_hline(aes(yintercept = 50), alpha = .5, color = 'salmon') +
+  geom_ribbon( aes(ymin = 25, ymax = 75), alpha = .15, fill = 'salmon') + 
+  geom_ribbon( aes(ymin = 5, ymax = 95), alpha = .15, fill = 'salmon') + 
+  geom_line(size = 1) + 
+  geom_label(x = 18, y = qts$ecdf[qts$x == 18]*100, 
+             label = round(qts$ecdf[qts$x == 18]*100)) +
+  scale_x_continuous(breaks = 6*(1:16))  +
+  ylab('Porcentaje Acumulado Población') + 
+  xlab('Edad de Inicio\nAlcohol') 
+ggsave(filename = "graphs/graphs_ena/edadecdf_alcohol.png", gg, width = 5.5, height = 4)
 
 percep.u  %>% 
   group_by(mariguana, mariguana_legal) %>% 
@@ -216,17 +247,39 @@ print(percep.cons, n=3, width = Inf)
 tab <- percep.cons %>% 
   left_join(
     individ %>% select(folio, pond, edad) %>% 
-      mutate(edad.cut = cut(edad, c(12, 18, 24, 30, 36, 42, 48, 54, 60, 65) )),
+      mutate(edad.cut = cut(edad, c(12, 18, 24, 30, 36, 42, 48, 54, 60, 65), 
+                            include.lowest = T)),
     by = c("folio", "pond")
   ) %>% 
-  group_by(mariguana_legal, edad.cut) %>% 
+  group_by(edad.cut, mariguana_legal) %>% 
   summarise(n = sum(pond)) %>% 
-  group_by(mariguana_legal) %>% 
+  group_by(edad.cut) %>% 
   mutate(prop = 100*n/sum(n))
 
-ggplot(tab, aes(x = edad.cut, y = prop)) + 
+ggplot(tab, aes(x = edad.cut, y = prop, 
+                color = mariguana_legal, group = mariguana_legal)) + 
+  geom_line() + 
+  facet_wrap(~mariguana_legal, scale = 'free_y') 
+
+tab <- percep.cons %>% 
+  left_join(
+    demos %>% select(folio, pond, ingreso.cod),
+    by = c("folio", "pond")
+  ) %>% 
+  group_by(ingreso.cod, mariguana_legal) %>% 
+  summarise(n = sum(pond)) %>% 
+  filter(ingreso.cod != 9) %>% 
+  group_by(ingreso.cod) %>% 
+  mutate(prop = 100*n/sum(n))
+
+ggplot(tab, aes(x = factor(ingreso.cod), y = prop, 
+                color = mariguana_legal, group = mariguana_legal)) + 
+  geom_line() + 
+  facet_wrap(~mariguana_legal, scale = 'free_y') 
   
 
+  
+  
 tab <- percep.cons %>% 
   gather(cons, cons.val, -1:-4) %>% 
   group_by(mariguana_legal, cons, cons.val) %>% 

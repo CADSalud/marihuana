@@ -64,6 +64,7 @@ head(df.general)
 
 # Illicit drug use in prisions
 df.prision <- read.xls('data/illicitdruguseinprision.xls') %>% 
+  tbl_df() %>% 
   filter(Region %in% c('Africa', 'Americas', 'Asia', 'Oceania', 'Europe')) %>% 
   dplyr::select(-Notes, -Source, year = X, -X.1) %>% 
   gather(var.nom, var.val, -1:-4) %>% 
@@ -75,7 +76,7 @@ df.prision <- read.xls('data/illicitdruguseinprision.xls') %>%
                          ),
     year = as.numeric(str_sub(year, 1, 4))
   ) %>% 
-  dplyr::select(-var.nom, -var.val, -period.num)
+  dplyr::select(-var.nom, prop = var.val, -period.num)
 names(df.prision) <- tolower(names(df.prision))
 head(df.prision)
 
@@ -128,9 +129,11 @@ library(foreign)
 hogar <- read.spss("data/ENA/tbl_hogar_hogar_2012-01-30.sav",
                    to.data.frame = T) %>% 
   tbl_df()
-# 
-# integrantes <- read.spss("data/ENA/tbl_hogar_integrantes_2012-01-30.sav",
-#                          to.data.frame = T)
+
+integrantes <- read.spss("data/ENA/tbl_hogar_integrantes_2012-01-30.sav",
+                         to.data.frame = T) %>%
+  tbl_df() %>% 
+  mutate(edad.cut = cut(h305a, breaks = c(0, 11, 17, 65, 140) ) )
 
 individ <- read.spss("data/ENA/tbl_individual_seleccionados_2012-01-30.sav",
                          to.data.frame = T) %>% 
@@ -158,7 +161,7 @@ individ <- read.spss("data/ENA/tbl_individual_seleccionados_2012-01-30.sav",
 
 # ingreso
 df.ingr <- individ %>% 
-  dplyr::select(folio, a015a, a015b, a015c) %>% 
+  dplyr::select(folio, pond, a015a, a015b, a015c) %>% 
   gather(columna.nom, codigo, a015a:a015c) %>% 
   filter(codigo != -999) %>% 
   mutate(codigo = as.numeric(codigo)) %>% 
@@ -169,29 +172,31 @@ df.ingr <- individ %>%
     by = c('codigo', 'columna.nom')
   ) %>% 
   select(-columna.nom, ingreso.cod = codigo)
+# dim 16249
 
 # pob ocupada
 df.pocup <- individ %>% 
-  dplyr::select(folio, a011, a0111, a0112, a0113) %>% 
+  dplyr::select(folio, pond, a011, a0111, a0112, a0113) %>% 
   gather(columna.nom, codigo, a011:a0113) %>% 
   filter(!is.na(codigo)) %>% 
   mutate(bin = (codigo == "Sí")) %>% 
-  group_by(folio) %>% 
+  group_by(folio, pond) %>% 
   summarise(acum = factor(as.numeric(sum(bin) > 0), 
                           levels = 0:1, 
                           labels = c('no ocupado', 'ocupado'))
   ) %>% 
   rename(pob.ocup = acum)
+# dim 16249
 
 # migrantes
 df.migrac <- individ %>% 
-  dplyr::select(folio, 
+  dplyr::select(folio, pond,
                 algvez_usa = a352, 
                 motivo_usa = a358) %>% 
   mutate(motivo_usa = str_replace(motivo_usa, "[?]", ""),
          trabajo_usa = ifelse(motivo_usa == 'trabajo', 'trabajo', NA)
          )
-         
+# dim 16249  
 
 
 # 0. demos
@@ -201,19 +206,24 @@ demos <- individ %>%
                 a006, a007, a008, a008a, #
                 a014a # ocupación
   ) %>% 
-  mutate(edad.cut = cut_width(edad, 6)) %>% 
+  unique() %>% 
+  mutate(edad.cut = cut(edad, breaks = c(12, 18, 24, 30, 36, 
+                                         42, 48, 54, 60, 65), 
+                        include.lowest = T)
+         ) %>% 
   left_join(
-    df.pocup, by = 'folio'
+    df.pocup, by = c('folio', 'pond')
   ) %>% 
   left_join(
-    df.ingr, by = 'folio'
+    df.ingr, by = c('folio', 'pond')
   ) %>% 
   left_join(
-    df.migrac, by = 'folio'
+    df.migrac, by = c('folio', 'pond')
   ) %>% 
   rename(edo_civil = a006, religion = a007, 
          escolar = a008a, profesion = a014a)
 head(demos %>% data.frame())
+#dim 16249
 rm('df.pocup', 'df.ingr', 'df.migrac')
 
 
@@ -339,7 +349,7 @@ percep <- individ %>%
   mutate(var.lab = paste('adiccion', fct_recode(var.lab,
           mariguana = 'a327a', alucinógenos = 'a327b', 
           cocaína = 'a327c', heroína = 'a327d',
-          inhalables = 'a327e', alochol = 'a327f', 
+          inhalables = 'a327e', alcohol = 'a327f', 
           tabaco = 'a327g', otra = 'a327h'
         ), sep = "_"
       )
