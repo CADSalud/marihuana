@@ -47,7 +47,17 @@ prevdrogas <- tab %>%
   mutate(drogas.ilegales = aluciógenos + anfetamina + 
            cocaína + crack + heroína + inhalables + 
            mariguana) %>% 
-  select(folio, pond, alcohol, mariguana, drogas.ilegales)
+  select(folio, pond, 
+         alcohol, mariguana, drogas.ilegales) %>% 
+  left_join(
+    usos %>% 
+      select(folio, pond, edadinic_mariguana, edadinic_alcohol,
+             arrestos_drogas, 
+             adiccion_drogas, dependencia_drogas, 
+             accidentes_drogas,
+             tratamiento_alcohol, tratamiento_alcohol)
+  )
+dim(prevdrogas) # 16249
 cache('prevdrogas')
   
 
