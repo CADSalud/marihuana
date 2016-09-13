@@ -36,6 +36,21 @@ tab <- usos %>%
              )
 head(tab)
 
+
+
+# Base de uso mariguana
+prevdrogas <- tab %>% 
+  select(folio, pond, periodo, droga, var.num) %>% 
+  filter( periodo == 'algvez') %>% 
+  unique() %>% 
+  spread(droga, var.num) %>% 
+  mutate(drogas.ilegales = aluciógenos + anfetamina + 
+           cocaína + crack + heroína + inhalables + 
+           mariguana) %>% 
+  select(folio, pond, alcohol, mariguana, drogas.ilegales)
+cache('prevdrogas')
+  
+
 # función incidencias
 IncPond <- function(sub){
   tab <- sub %>% 
@@ -52,13 +67,14 @@ gg.tab.tot <- IncPond(tab) %>%
   separate(var.lab, c("periodo", "droga"), sep = "_", 
            remove = F) %>% 
   filter(var.num == 1 & droga != 'otras')
-gg <- ggplot(gg.tab.tot, 
-             aes( x= fct_reorder(droga, porc ), y = porc, 
-                    fill = periodo)) + 
+gg <- ggplot(filter(gg.tab.tot, periodo == 'algvez'), 
+             aes( x= fct_reorder(droga, porc ), y = porc)) + 
   geom_bar(stat = 'identity') + 
-  facet_wrap(~periodo, scales = 'free_y') + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-ggsave("graphs/ena_inctot.png", gg, width = 8, height = 4)
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ylab('Prevalencia (%)\nAlguna Vez')  + 
+  xlab(NULL) + 
+  scale_y_continuous(labels = function(x)round(100*x))
+ggsave("graphs/ena_inctot.png", gg, width = 4, height = 4)
 
 gg.tab.tot %>% 
   ungroup %>% 
@@ -79,37 +95,21 @@ gg.tab <- tab %>%
   filter(droga != 'otras') %>% 
   mutate(droga = fct_reorder(droga, porc))
 
-gg <- ggplot(gg.tab, aes(x = sexo_h, y = porc, 
-                         group = periodo, fill = periodo))  + 
+gg <- ggplot( filter(gg.tab, 
+                     droga %in% c('mariguana', 'alcohol'),
+                     periodo == 'algvez'), 
+             aes(x = droga, y = porc, 
+                 fill = sexo_h))  + 
   geom_bar(stat = 'identity', position = 'dodge') +
-  facet_wrap(~ droga, scales = 'free_y', nrow = 2) +
-  scale_y_continuous(labels = function(x)round(100*x,1)) + 
-  ylab('Incidencia (%)') + 
-  xlab('Género')
-ggsave("graphs/ena_incgenero.png", gg, width = 12, height = 5)
-
-
-gg.tab <- tab %>%
-  filter(var.num == 1) %>% 
-  group_by(periodo, droga, sexo_h) %>% 
-  summarise(frec = sum(pond)) %>% 
-  group_by(periodo, droga) %>% 
-  mutate(porc = frec/sum(frec)) %>% 
-  filter(droga != 'otras')
-gg.tab %>% group_by(periodo, droga) %>% summarise(sum(porc))
-gg <- ggplot(gg.tab, aes(x = sexo_h, y = porc, 
-                         group = periodo, fill = periodo))  + 
-  geom_bar(stat = 'identity', position = 'dodge') +
-  facet_wrap(~ droga, scales = 'free_y', nrow = 2) +
-  scale_y_continuous(labels = function(x)round(100*x,1)) + 
-  ylab('Incidencia (%)') + 
-  xlab('Género')
-ggsave("graphs/ena_incgenero2.png", gg, width = 12, height = 5)
+  ylab('Prevalencia (%)\nAlguna Vez')  + 
+  xlab(NULL) + 
+  scale_y_continuous(labels = function(x)round(100*x)) + 
+  guides(fill = guide_legend(title = "Sexo" ))
+ggsave("graphs/ena_incgenero.png", gg, width = 5, height = 4)
 
 
 # edad cut
 gg.tab <- tab %>% 
-  mutate(edad.cut = cut_width(edad, 10)) %>% 
   group_by(edad.cut) %>% 
   do(IncPond(sub = .))  %>% 
   filter(var.num == 1) %>%
@@ -122,19 +122,22 @@ gg.tab <- tab %>%
     select(gg.tab.tot, porc.tot = porc, var.lab)
   ) %>% 
   filter(droga != 'otras') %>% 
-  mutate(edad.cut = fct_relevel(edad.cut, "[5,15]"),
+  mutate(edad.cut = fct_relevel(edad.cut, "[12,18]"),
          droga = fct_reorder(droga, porc))
 
-gg <- ggplot(gg.tab, aes(x = edad.cut, y = porc, 
-                   group = periodo, color = periodo))  + 
-  geom_point(alpha = .1) +
+gg <- ggplot( filter(gg.tab, 
+                     droga %in% c('mariguana', 'alcohol')),
+             aes(x = edad.cut, y = porc, 
+                 group = periodo, color = periodo))  + 
   geom_smooth(span = 1.8, se = F) + 
   facet_wrap(~ droga, scales = 'free_y') + 
-  theme(axis.text.x = element_text(angle = 90)) + 
-  scale_y_continuous(labels = function(x)round(100*x,1)) + 
-  ylab('Incidencia (%)') + 
-  xlab('Edad')
-ggsave("graphs/ena_incedad.png", gg, width = 10, height = 7)
+  theme(axis.text.x = element_text(angle = 90), 
+        legend.position = 'bottom') +
+  ylab('Prevalencia (%)')  + 
+  xlab(NULL) + 
+  scale_y_continuous(labels = function(x)round(100*x)) 
+  
+ggsave("graphs/ena_incedad.png", gg, width = 9, height = 5)
 
 
 GGBiplotEdad <- function(per.selec){
@@ -148,10 +151,14 @@ GGBiplotEdad <- function(per.selec){
   tab.fin <- ggmod %>%  
     add_predictions(mod.ln, "preds") %>% 
     mutate(predst = exp(preds) ) %>% 
-    select(droga, edad.cut, predst) %>% 
-    spread(edad.cut, predst)
-  pc <- princomp(Perfiles(as.matrix(tab.fin[, -1]), 'r' ), cor = T)
-  gg <- ggbiplot(pc, scale = .3, labels = tab.fin$droga, 
+    group_by(edad.cut) %>% 
+    mutate(perf = predst/mean(predst)) %>% 
+    group_by(droga) %>% 
+    mutate(perfd = 100*perf/mean(perf)) %>% 
+    select(droga, edad.cut, perfd)  %>% 
+    spread(droga, perfd)
+  pc <- princomp(as.matrix(tab.fin[, -1]), cor = T)
+  gg <- ggbiplot(pc, scale = .3, labels = tab.fin$edad.cut, 
                  labels.size = 4)+ 
     theme(axis.text = element_blank()) +
     ggtitle(per.selec) 
@@ -159,24 +166,20 @@ GGBiplotEdad <- function(per.selec){
           gg, width = 6, height = 6)
 }
 
-GGBiplotEdad(per.selec = 'ult30')
-GGBiplotEdad(per.selec = 'ult12')
 GGBiplotEdad(per.selec = 'algvez')
 
 
 # ingreso
 tab %>% 
   group_by(ingreso.cod) %>% 
-  summarise(n(), sum(pond))
-  group_by(var.lab, var.num) %>% 
-  dplyr::summarise(frec.pond = sum(pond)) %>% 
-  group_by(var.lab) %>% 
+  summarise( frec.pond =  sum(pond)) %>% 
   mutate( porc = frec.pond/sum(frec.pond)) 
 
 gg.tab <- tab %>% 
   group_by(ingreso.cod) %>% 
   do(IncPond(sub = .))  %>% 
-  filter(var.num == 1) %>%
+  filter(var.num == 1, 
+         ingreso.cod != 9) %>%
   select(-var.num, -frec.pond) %>% 
   spread(ingreso.cod, porc, fill = 0) %>% 
   separate(var.lab, c("periodo", "droga"), sep = "_", 
@@ -185,45 +188,19 @@ gg.tab <- tab %>%
   filter(droga != 'otras') %>% 
   mutate(droga = fct_reorder(droga, porc))
 
-gg <- ggplot(gg.tab, aes(x = ingreso.cod, y = porc, 
-                         group = periodo, color = periodo))  + 
-  geom_point(alpha = .6) +
+gg <- ggplot( filter(gg.tab, 
+                     droga %in% c('mariguana', 'alcohol')),
+             aes(x = ingreso.cod, y = porc, 
+                 group = periodo, color = periodo))  + 
   geom_smooth(span = 1.3, se = F) + 
-  facet_wrap(~ droga, scales = 'free_y') +
-  scale_y_continuous(labels = function(x)round(100*x,1)) + 
-  ylab('Incidencia (%)') + 
-  xlab('Nivel de Ingreso')
-ggsave("graphs/ena_incingreso.png", gg, width = 10, height = 8)
+  facet_wrap(~ droga, scales = 'free_y') + 
+  theme(legend.position = 'bottom') +
+  ylab('Prevalencia (%)')  + 
+  xlab(NULL) + 
+  scale_y_continuous(labels = function(x)round(100*x)) 
+ggsave("graphs/ena_incingreso.png", gg, width = 9, height = 5)
 
 
-#  modelos de ingresos para hacer biplots bonitos
-# gg.tab$porc <- 100*gg.tab$porc
-GGBiplotIng <- function(per.selec){
-  ggmod <- gg.tab %>% 
-    filter(periodo == per.selec & 
-             !droga %in% c('otras', 'tabaco', 'alcohol')) %>% 
-    mutate(ingreso.cod = as.numeric(ingreso.cod))
-  
-  mod.ln <- lm(log(porc + .01) ~ droga*ns(ingreso.cod,2),  
-               data = ggmod)
-  
-  tab.fin <- ggmod %>%  
-    add_predictions(mod.ln, "preds") %>% 
-    mutate(predst = exp(preds)-.01) %>% 
-    select(droga, ingreso.cod, predst) %>% 
-    spread(droga, predst)
-  pc <- princomp(Perfiles(as.matrix(tab.fin[, -1]), 'd' ), cor = T)
-  gg <- ggbiplot(pc, scale = .3, labels = 1:8, 
-                 labels.size = 4)+ 
-    theme(axis.text = element_blank()) +
-    ggtitle(per.selec) 
-  ggsave( paste0("graphs/ena_incbiping_",per.selec, ".png"), 
-         gg, width = 6, height = 6)
-
-}
-GGBiplotIng(per.selec = 'ult30')
-GGBiplotIng(per.selec = 'ult12')
-GGBiplotIng(per.selec = 'algvez')
 
 
 
@@ -299,4 +276,3 @@ GGMapPrev('algvez', filter(gg.tab, droga == 'inhalables'))
 
 
 
-# Consumo compartido
