@@ -256,10 +256,15 @@ tab <- percep.cons %>%
   group_by(edad.cut) %>% 
   mutate(prop = 100*n/sum(n))
 
-ggplot(tab, aes(x = edad.cut, y = prop, 
+gg <- ggplot(tab, aes(x = edad.cut, y = prop, 
                 color = mariguana_legal, group = mariguana_legal)) + 
-  geom_line() + 
+  # geom_line() + 
+  geom_point() + 
+  geom_smooth(se = F, span = 1) + 
+  theme(axis.text.x = element_text(angle = 90)) + 
   facet_wrap(~mariguana_legal, scale = 'free_y') 
+ggsave("graphs/graphs_ena/ena_legaledadcut.png", gg, width = 7, height = 3)  
+
 
 tab <- percep.cons %>% 
   left_join(
@@ -272,11 +277,13 @@ tab <- percep.cons %>%
   group_by(ingreso.cod) %>% 
   mutate(prop = 100*n/sum(n))
 
-ggplot(tab, aes(x = factor(ingreso.cod), y = prop, 
+gg <- ggplot(tab, aes(x = factor(ingreso.cod), y = prop, 
                 color = mariguana_legal, group = mariguana_legal)) + 
-  geom_line() + 
+  # geom_line() + 
+  geom_point() + 
+  geom_smooth(se = F, span = 1) + 
   facet_wrap(~mariguana_legal, scale = 'free_y') 
-  
+ggsave("graphs/graphs_ena/ena_legalingreso.png", gg, width = 7, height = 3)  
 
   
   
