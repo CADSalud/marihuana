@@ -293,12 +293,21 @@ tab <- percep.cons %>%
   summarise(n = sum(pond)) %>% 
   group_by(mariguana_legal, cons) %>% 
   mutate(prop = 100*n/sum(n))
+tab %>% 
+  filter(cons.val == 'Sí') %>% 
+  select(-n) %>% 
+  spread(mariguana_legal, prop) %>% 
+  write.csv(row.names = F)
 
-ggplot( filter(tab,cons.val == 'Sí'), 
-        aes(x  = cons, y = prop, fill = mariguana_legal))+ 
+gg <- ggplot( filter(tab,cons.val == 'Sí'), 
+        aes(x  = fct_reorder(cons, prop, mean), 
+            y = prop, fill = mariguana_legal))+ 
   geom_bar(stat= 'identity', position = 'dodge') + 
-  coord_flip() + 
-  facet_wrap(~cons.val) 
+  xlab(NULL) + 
+  coord_flip() 
+ggsave("graphs/graphs_ena/ena_consecuenciasleg.png", gg, 
+       width = 7, height = 5)
+
 
 modsi <- lm(mariguana_legal == 'Sí' ~ `cons_aumentaría consumo` + 
               `cons_debilitarian valores morales/relig` + 
