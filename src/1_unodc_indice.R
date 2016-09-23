@@ -7,40 +7,119 @@ head(df.prision)
 head(df.youth)
 
 
+# Tabla por tema y en algunos casos imputación
 
-# subsets con variables seleccionadas
-t.deaths <- df.deaths %>% 
-  tbl_df() %>% 
-  select(subregion, country, year, death.rate = rate.mill) %>% 
-  filter(!is.na(death.rate))
-
+# Prision: prevalencia de drogas en prision
 t.prision <- df.prision %>% 
   tbl_df() %>%
   filter(drug == 'cannabis',
          !is.na(prop)) %>% 
   group_by(country, drug, period) %>% 
   group_by(subregion, country, year, period) %>% 
-  summarise(prop = mean(prop, na.rm = T)) %>% 
-  spread(period, prop) %>% 
+  summarise(prop = mean(prop, na.rm = T)/100) %>% 
+  spread(period, prop)
+
+set.seed(19871002)
+dat.mi <- as.data.frame(t.prision[, 4:6])
+missing.df <- missing_data.frame(dat.mi)
+show(missing.df)
+imps.prision <- mi(missing.df, n.iter = 50, n.chains = 1)
+plot(imps.prision)
+complete(imps.prision)[,1:3] %>% 
+  cbind(t.prision[, -1])
+
+t.prision.imp <- t.prision[, 1:3] %>% 
+  cbind(complete(imps.prision)[,1:3]) %>% 
   group_by(country) %>% 
   mutate(max.y=max(year)) %>% 
-  filter(max.y == year) %>% 
-  ungroup
+  ungroup %>% 
+  filter(max.y == year) 
+cache("t.prision.imp")
   
+# Deaths: muertes relacionadas a uso de dorgas
+t.deaths <- df.deaths %>% 
+  tbl_df() %>% 
+  filter(!is.na(rate.mill),
+         drug == 'cannabis') %>% 
+  select(subregion, country, year, death.rate = rate.mill) %>% 
+  group_by(country) %>% 
+  mutate(max.y = max(year)) %>% 
+  ungroup %>% 
+  filter(max.y == year) 
 
+# Youth: consumo de drogas por en jovenes
 t.youth <- df.youth %>% 
   tbl_df() %>%
+  # quita tranqsed por poca información
+  filter(drug != 'tranqsed') %>% 
   group_by(subregion, country, year, drug) %>% 
-  summarise(prop = mean(lifetime, na.rm = T)) %>% 
-  spread(drug, prop)
+  summarise(prop = (mean(lifetime, na.rm = T)+.0001)/100  ) %>% 
+  # nan's se van
+  filter(!is.nan(prop),
+         year > 2009) %>% 
+  spread(drug, prop) %>% 
+  group_by(country) %>% 
+  mutate(max.y = max(year)) %>% 
+  ungroup %>% 
+  # información mas actualizada
+  filter(max.y == year, 
+  # regiones muy pequeñas que meten ruido
+         subregion != 'Caribbean', 
+         !str_detect(subregion, "Africa")) 
 
+set.seed(19871002)
+t.youth$country %>% unique %>% sort
+dat.mi <- as.data.frame(t.youth[, c(4,5,6)])
+missing.df <- missing_data.frame(dat.mi)
+show(missing.df)
+imps.youth <- mi(missing.df, n.iter = 50, n.chains = 1)
+quartz();plot(imps.youth)
+complete(imps.youth)[,1:3] %>% 
+  cbind(t.youth[, -1])
+
+t.youth.imp <- t.youth[, 1:3] %>% 
+  cbind(complete(imps.youth)[,1:3])
+cache('t.youth.imp')
+
+# General: consumo de drogas por en población en general
 t.general <- df.general %>% 
   tbl_df() %>%
+  filter(drug != 'tranqsed') %>% 
   group_by(subregion, country, year, drug) %>% 
-  summarise(prop = mean(total, na.rm = T))  %>% 
+  summarise(prop = mean(total, na.rm = T)/100)  %>% 
   filter(!is.na(year)) %>% 
-  spread(drug, prop)
-  
+  spread(drug, prop) %>% 
+  group_by(country) %>% 
+  mutate(max.y = max(year)) %>% 
+  ungroup %>% 
+  filter(max.y == year) 
+
+set.seed(19871002)
+dat.mi <- as.data.frame(t.general[, c(4,5,6)])
+missing.df <- missing_data.frame(dat.mi)
+show(missing.df)
+imps.general <- mi(missing.df, n.iter = 50, n.chains = 1)
+quartz();plot(imps.general)
+complete(imps.general)[,1:3] %>% 
+  cbind(t.general[, -1])  
+
+t.general.imp <- t.general[, 1:3] %>% 
+  cbind(complete(imps.general)[,1:3])
+cache('t.general.imp')
+
+# Union de 3 imputaciones
+dim(t.general.imp)
+dim(t.prision.imp)
+dim(t.youth.imp)
+dim(t.deaths)
+
+# Homologar nombres de paises
+t.general.imp %>% 
+  select(subregion, country, general.cannabis = cannabis)
+
+
+
+
 ## Auxiliares para homologar nombres
 # tt <- t.prision %>% ungroup %>% 
 #   select(subregion, country) %>% 
@@ -148,7 +227,6 @@ tab.index %<>%
   filter(id.country != 43)
 
 # Imputacion
-library(mi)
 options("scipen"=999)
 dat.mi <- data.frame(log(tab.index[, -1:-2] + .0001) )
 missing.df <- missing_data.frame(dat.mi)
