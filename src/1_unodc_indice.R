@@ -153,7 +153,7 @@ tab.union <- t.general.imp %>%
         by = c('subregion', 'country')
       ) %>% 
       select(-subregion, -country),
-    by = "id.country"
+    by = c("id.country", "id.ggmap")
   ) %>% 
   full_join(
     t.youth.imp %>%
@@ -165,7 +165,7 @@ tab.union <- t.general.imp %>%
         by = c('subregion', 'country')
       ) %>% 
       select(-subregion, -country),
-    by = "id.country"
+    by = c("id.country", "id.ggmap")
   ) %>% 
   full_join(
     t.prision.imp %>%
@@ -178,53 +178,67 @@ tab.union <- t.general.imp %>%
         by = c('subregion', 'country')
       ) %>% 
       select(-subregion, -country),
-    by = "id.country"
+    by = c("id.country", "id.ggmap")
   )
 
 
 # Imputacion de tabla unida
 dat.mi <- tab.union %>% 
   select(general.cannabis, death.rate, youth.cannabis, prision.annual) %>% 
+  mutate(death.rate = log(death.rate +.001)) %>% 
   data.frame()
+
+set.seed(160922)  
 missing.df <- missing_data.frame(dat.mi)
 show(missing.df)
 summary(missing.df)
 imps.union <- mi(missing.df, n.iter = 30, n.chains = 1)
-plot(imps.union)
+quartz();plot(imps.union)
+cache('imps.union')
 
-tab.union.imps <- exp(complete(imputations)$`chain:2`[, 1:4]-.0001) %>% 
-  cbind(tab.index[, 1:2]) %>% 
-  filter(id.country != 43) %>% 
+complete(imps.union)[,1:4] %>% 
+  mutate(death.rate = exp(death.rate)-.001) %>% 
+  cbind(tab.union[, c(2, 1,4, 5, 6) ])  %>% 
+  data.frame()
+
+tab.union.imps <- complete(imps.union)[,1:4] %>% 
+  mutate(death.rate = exp(death.rate)-.001) %>% 
+  cbind(tab.union[, 2:3]) 
+
+cache("tab.union.imps")
+
+
+
+# Indice
+tab.indice <- tab.union.imps %>% 
+  filter(id.country != 135) %>% 
+  tbl_df() %>% 
   group_by(id.country) %>% 
-  mutate(num = mean(c(cann.general, cann.youth, death.rate, prision.cons))) %>% 
+  mutate(acum.prom = mean(general.cannabis, death.rate, 
+                          youth.cannabis, prision.annual)) %>% 
   ungroup %>% 
-  mutate(den = mean(num), 
-         indice = 100*num/den)
-
-
-pca.df <- data.frame(tab.preds)
-pca.ind <- princomp(pca.df %>% select(cann.general:prision.cons))
+  mutate(indice.prom = 100*acum.prom/mean(acum.prom)) %>% 
+  arrange(indice.prom)
+  
+pca.ind <- princomp(tab.indice %>% select(general.cannabis:prision.annual))
 summary(pca.ind)
 
-
-tab.prcomp <- tab.preds %>% 
-  cbind(pca.ind$scores)
-
-qplot(indice, Comp.1, data = tab.prcomp) + 
-  geom_text(aes(label = country), check_overlap = T)
+tab.indice %<>% 
+  cbind(pca.ind$scores) %>% 
+  tbl_df()
+qplot(indice.prom, Comp.1, data = tab.indice) + 
+  geom_text(aes(label = id.ggmap), check_overlap = T)
+cache('tab.indice')
 
 # Map world
 tab.map <- map_data(map="world") %>% 
+  tbl_df() %>% 
   left_join(
-    read_csv(file = "doc/ena_atrcountrygg_index.csv") %>% 
-      select(id.country, region = id.plot) %>% 
-      na.omit()
-  ) %>% 
-  left_join(tab.prcomp)
-
+    tab.indice, by = c("region"="id.ggmap")
+  )
 ggplot() + 
   geom_map(data = tab.map, map = tab.map, 
-           aes(map_id=region, x=long, y=lat, fill=Comp.1*-1)) + 
+           aes(map_id=region, x=long, y=lat, fill=indice.prom)) + 
   scale_fill_gradient(guide = "colourbar", 
                       high = '#003366', low = '#99CCFF', 
                       na.value = 'gray90', 
