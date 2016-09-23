@@ -236,7 +236,7 @@ tab.map <- map_data(map="world") %>%
   left_join(
     tab.indice, by = c("region"="id.ggmap")
   )
-ggplot() + 
+gg <- ggplot() + 
   geom_map(data = tab.map, map = tab.map, 
            aes(map_id=region, x=long, y=lat, fill=indice.prom)) + 
   scale_fill_gradient(guide = "colourbar", 
@@ -247,3 +247,5 @@ ggplot() +
   theme_minimal() + 
   theme(axis.text = element_blank())+
   ylab(NULL) + xlab(NULL)
+ggsave(filename = "graphs/mapas_unodc/indice_prom.png", gg, width = 9, height = 8)
+
