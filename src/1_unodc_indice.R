@@ -1,6 +1,8 @@
 library(ProjectTemplate)
 reload.project()
 
+options("scipen"=999)
+
 head(df.deaths)
 head(df.general)
 head(df.prision)
@@ -107,135 +109,90 @@ t.general.imp <- t.general[, 1:3] %>%
   cbind(complete(imps.general)[,1:3])
 cache('t.general.imp')
 
-# Union de 3 imputaciones
+# Union de 4 tablas
 dim(t.general.imp)
-dim(t.prision.imp)
-dim(t.youth.imp)
 dim(t.deaths)
+dim(t.youth.imp)
+dim(t.prision.imp)
+
 
 # Homologar nombres de paises
-t.general.imp %>% 
-  select(subregion, country, general.cannabis = cannabis)
-
-
-
-
-## Auxiliares para homologar nombres
-# tt <- t.prision %>% ungroup %>% 
-#   select(subregion, country) %>% 
-#   unique() %>% 
-#   arrange(country) 
-# tt %>% 
-#   write.csv(row.names = F)
-#
-# t.deaths %>% ungroup %>% 
-#   select(subregion, country) %>% 
-#   unique %>% 
-#   arrange(subregion) %>% 
-#   write.csv(row.names = F)
-# 
-# df.youth %>% filter(country %in% c("Canada", "Canada*"))
-# t.youth %>% ungroup %>% 
-#   select(subregion, country) %>% 
-#   unique %>% 
-#   arrange(subregion) %>% 
-#   write.csv(row.names = F)
-# 
-# t.general %>% ungroup %>% 
-#   select(subregion, country) %>% 
-#   unique %>% 
-#   arrange(subregion) %>% 
-#   write.csv(row.names = F)
+t.general.imp %>% select(subregion, country) %>% arrange(subregion, country) %>% write.csv("doc/unodc_countryindex.csv")
+t.prision.imp %>% select(subregion, country) %>% arrange(subregion, country) %>% write.csv(row.names = F)
+t.youth.imp %>% select(subregion, country) %>% arrange(subregion, country) %>% write.csv(row.names = F)
+t.deaths %>% select(subregion, country) %>% arrange(subregion, country) %>% write.csv(row.names = F)
 
 
 # Nombres de países modificados (id país)
-aux.country <- read_csv(file = "doc/ena_atrcountryrec_index.csv") %>% 
-  gather(var.name, var.val, region.prision:country.general) %>% 
+# China y UK se selecciona una region por el mapa
+aux.country <- read_csv(file = "doc/unodc_countryindex.csv") %>% 
+  gather(var.name, var.val, -1:-2, na.rm = T) %>% 
+  filter(!is.na(id.ggmap)) %>% 
   separate(var.name, c('lugar', 'base.nom'), sep = '\\.') %>% 
   spread(lugar, var.val) %>% 
-  group_by(id.country) %>% 
-  mutate(indna = sum(is.na(country))) %>% 
-  filter(indna ==  0) %>% 
-  select(-indna)
+  group_by(id.country) 
 table(aux.country$base.nom)
 
+
 # Tablas homologadas
-t.deaths %<>% unique %>% 
-  inner_join(
-    filter(aux.country, base.nom == 'deaths') %>% 
-      select(-base.nom, -region), 
-    by = 'country'
-  ) %>% 
-  group_by(id.country) %>% 
-  mutate(year.max = max(year)) %>% 
-  filter( year == year.max) %>% 
-  arrange(id.country) %>% 
-  select(id.country, country, death.rate)
-
-t.prision %<>% unique %>% ungroup() %>%
-  inner_join(
-    filter(aux.country, base.nom == 'prision') %>% 
-      select(-base.nom, -region), 
-    by = 'country'
-  ) %>% 
-  group_by(id.country) %>% 
-  mutate(year.max = max(year)) %>% 
-  filter( year == year.max) %>% 
-  arrange(id.country) %>% 
-  group_by(id.country, country) %>%
-  select(id.country, country, prision.cons = annual)
-# %>% 
-#   gather(var.lab, var.val, annual:month) %>% 
-#   na.omit() %>% 
-#   group_by(id.country, country) %>% 
-#   summarise(prision = mean(var.val)) 
-
-t.youth %<>% unique %>% ungroup() %>% 
-  select(-cocaine, -opioids, -tranqsed) %>% 
-  inner_join(
-    filter(aux.country, base.nom == 'youth') %>% 
-      select(-base.nom, -region), 
-    by = 'country'
-  ) %>% 
-  group_by(id.country) %>% 
-  mutate(year.max = max(year)) %>% 
-  filter( year == year.max) %>% 
-  select(id.country, country, cann.youth = cannabis)
-
-t.general %<>% unique %>% ungroup() %>% 
-  select(-cocaine, -opioids, -tranqsed) %>% 
+tab.union <- t.general.imp %>%
+  tbl_df() %>% 
+  select(subregion, country, general.cannabis = cannabis) %>% 
   inner_join(
     filter(aux.country, base.nom == 'general') %>% 
-      select(-base.nom, -region), 
-    by = 'country'
+      select(-base.nom), 
+    by = c('subregion', 'country')
   ) %>% 
-  group_by(id.country) %>% 
-  mutate(year.max = max(year)) %>% 
-  filter( year == year.max) %>% 
-  select(id.country, country, cann.general = cannabis)
-  
+  select(-subregion, -country) %>% 
+  full_join(
+    t.deaths %>%
+      select(-year, -max.y) %>% 
+      inner_join(
+        filter(aux.country, base.nom == 'deaths') %>% 
+          select(-base.nom), 
+        by = c('subregion', 'country')
+      ) %>% 
+      select(-subregion, -country),
+    by = "id.country"
+  ) %>% 
+  full_join(
+    t.youth.imp %>%
+      tbl_df() %>% 
+      select(subregion, country, youth.cannabis = cannabis) %>% 
+      inner_join(
+        filter(aux.country, base.nom == 'general') %>% 
+          select(-base.nom), 
+        by = c('subregion', 'country')
+      ) %>% 
+      select(-subregion, -country),
+    by = "id.country"
+  ) %>% 
+  full_join(
+    t.prision.imp %>%
+      mutate(subregion = as.character(subregion),
+             country = as.character(country)) %>% 
+      select(subregion, country, prision.annual = annual) %>% 
+      inner_join(
+        filter(aux.country, base.nom == 'prision') %>% 
+          select(-base.nom), 
+        by = c('subregion', 'country')
+      ) %>% 
+      select(-subregion, -country),
+    by = "id.country"
+  )
 
-# Union de subsets modificados
-tab.index <- t.general %>% 
-  left_join(t.youth) %>% 
-  left_join(t.deaths) %>% 
-  left_join(t.prision) %>% 
-  mutate(cann.youth = recode(cann.youth, "NaN = NA")) 
-tab.index$cann.youth[tab.index$id.country == 40] <- 
-  tab.index$cann.youth[tab.index$id.country == 43]
-tab.index %<>% 
-  filter(id.country != 43)
 
-# Imputacion
-options("scipen"=999)
-dat.mi <- data.frame(log(tab.index[, -1:-2] + .0001) )
+# Imputacion de tabla unida
+dat.mi <- tab.union %>% 
+  select(general.cannabis, death.rate, youth.cannabis, prision.annual) %>% 
+  data.frame()
 missing.df <- missing_data.frame(dat.mi)
 show(missing.df)
 summary(missing.df)
-imputations <- mi(missing.df, n.iter = 1000, n.chains = 2)
-plot(imputations)
+imps.union <- mi(missing.df, n.iter = 30, n.chains = 1)
+plot(imps.union)
 
-tab.preds <- exp(complete(imputations)$`chain:2`[, 1:4]-.0001) %>% 
+tab.union.imps <- exp(complete(imputations)$`chain:2`[, 1:4]-.0001) %>% 
   cbind(tab.index[, 1:2]) %>% 
   filter(id.country != 43) %>% 
   group_by(id.country) %>% 

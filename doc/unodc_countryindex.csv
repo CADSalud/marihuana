@@ -1,0 +1,139 @@
+id.country,id.ggmap,subregion.general,country.general,subregion.prision,country.prision,subregion.youth,country.youth,subregion.deaths,country.deaths
+1,Grenada,,,Caribbean,Grenada,,,,
+2,Bahamas,Caribbean,Bahamas,,,,,Caribbean,Bahamas
+3,Barbados,Caribbean,Barbados,,,,,,
+4,Bermuda,Caribbean,Bermuda,,,,,,
+5,Dominican Republic,Caribbean,Dominican Republic,,,,,,
+6,Haiti,Caribbean,Haiti,,,,,,
+7,Jamaica,Caribbean,Jamaica,,,,,,
+8,Puerto Rico,Caribbean,Puerto Rico,,,,,,
+9,Saint Lucia,Caribbean,Saint Lucia,,,,,,
+10,Trinidad,Caribbean,Trinidad and Tobago,,,,,Caribbean,Trinidad and Tobago
+11,Belize,Central America,Belize,,,Central America,Belize,,
+12,Costa Rica,Central America,Costa Rica,,,Central America,Costa Rica,Central America,Costa Rica
+13,El Salvador,Central America,El Salvador,Central America,El Salvador,Central America,El Salvador,Central America,El Salvador
+14,Guatemala,Central America,Guatemala,,,Central America,Honduras,,
+15,Honduras,Central America,Honduras,,,,,,
+16,Nicaragua,Central America,Nicaragua,,,,,Central America,Nicaragua
+17,Panama,Central America,Panama,,,,,Central America,Panama
+18,Armenia,Central Asia  and Transcaucasian countries,Armenia,,,,,,
+19,Georgia,Central Asia  and Transcaucasian countries,Georgia,,,Central Asia  and Transcaucasian countries,Georgia,,
+20,Kazakhstan,Central Asia  and Transcaucasian countries,Kazakhstan,,,Central Asia  and Transcaucasian countries,Kazakhstan,Central Asia  and Transcaucasian countries,Kazakhstan
+21,Kyrgyzstan,Central Asia  and Transcaucasian countries,Kyrgyzstan,,,,,Central Asia  and Transcaucasian countries,Kyrgyzstan
+22,Tajikistan,Central Asia  and Transcaucasian countries,Tajikistan,,,,,Central Asia  and Transcaucasian countries,Tajikistan
+23,Azerbaijan,Central Asia and Transcaucasia,Azerbaijan,,,,,Central Asia and Transcaucasia,Azerbaijan
+24,Turkmenistan,Central Asia and Transcaucasian countries,Turkmenistan,,,,,,
+25,Uzbekistan,Central Asia and Transcaucasian countries,Uzbekistan,,,,,Central Asia and Transcaucasian countries,Uzbekistan
+26,Cambodia,East and South-East Asia,Cambodia,,,,,,
+27,China,East and South-East Asia,"China, Hong Kong SAR",,,East and South-East Asia,"China, Hong Kong SAR",East and South-East Asia,"China, Hong Kong SAR"
+28,,East and South-East Asia,"China, Macao SAR",,,,,East and South-East Asia,"China, Macao SAR"
+29,Indonesia,East and South-East Asia,Indonesia,,,East and South-East Asia,Indonesia,,
+30,Japan,East and South-East Asia,Japan,,,East and South-East Asia,Japan,,
+31,Laos,East and South-East Asia,Lao People's Democratic Republic,,,,,,
+32,Malaysia,East and South-East Asia,Malaysia,,,,,East and South-East Asia,Malaysia
+33,Myanmar,East and South-East Asia,Myanmar,,,,,,
+34,Philippines,East and South-East Asia,Philippines,,,,,,
+35,South Korea,East and South-East Asia,Republic of Korea,,,,,,
+36,Singapore,East and South-East Asia,Singapore,,,,,,
+37,Taiwan,East and South-East Asia,Taiwan Province of China,,,,,,
+38,Thailand,East and South-East Asia,Thailand,,,,,,
+39,Belarus,East Europe,Belarus,,,East Europe,Belarus,East Europe,Belarus
+40,Russia,East Europe,Russian Federation,,,East Europe,Russian Federation,East Europe,Russian Federation
+41,Ukraine,East Europe,Ukraine,,,East Europe,Ukraine,East Europe,Ukraine
+42,Kenya,Eastern Africa,Kenya,Eastern Africa,Kenya,,,Eastern Africa,Kenya
+43,Madagascar,Eastern Africa,Madagascar,,,,,,
+44,Mauritius,Eastern Africa,Mauritius,,,,,,
+45,Moldova,Eastern/ South-East Europe,Republic of Moldova,,,East Europe,Moldova (Republic of),,
+46,Kuwait,Near and Middle East,Kuwait,,,,,Near and Middle East,Kuwait
+47,Syria,Near and Middle East,Syrian Arab Republic,,,,,Near and Middle East,Syrian Arab Republic
+48,United Arab Emirates,Near and Middle East,United Arab Emirates,,,,,Near and Middle East,United Arab Emirates
+49,Afghanistan,Near and Middle East / South-West Asia,Afghanistan,Near and Middle East / South-West Asia,Afghanistan,,,Near and Middle East / South-West Asia,Afghanistan
+50,Pakistan,Near and Middle East / South-West Asia,Pakistan,,,,,,
+51,Saudi Arabia,Near and Middle East / South-West Asia,Saudi Arabia,,,,,,
+52,Israel,Near and Middle East /South-West Asia,Israel,,,Near and Middle East /South-West Asia,Israel,Near and Middle East /South-West Asia,Israel
+53,Lebanon,Near and Middle East /South-West Asia,Lebanon,,,,,Near and Middle East /South-West Asia,Lebanon
+54,Algeria,North Africa,Algeria,,,,,,
+55,Egypt,North Africa,Egypt,,,,,,
+56,Morocco,North Africa,Morocco,,,,,,
+57,Tunisia,North Africa,Tunisia,,,,,,
+58,Canada,North America,Canada,,,North America,Canada,North America,Canada
+59,Mexico,North America,Mexico,North America,Mexico,North America,Mexico,North America,Mexico
+60,USA,North America,United States of America,,,North America,United States of America,North America,United States of America
+61,Australia,Oceania,Australia,Oceania,Australia,Oceania,Australia,Oceania,Australia
+62,Fiji,Oceania,Fiji,,,,,,
+63,New Zealand,Oceania,New Zealand,Oceania,New Zealand,,,Oceania,New Zealand
+64,Argentina,South America,Argentina,South America,Argentina,South America,Argentina,South America,Argentina
+65,Bolivia,South America,Bolivia (Plurinational State of),,,South America,Bolivia (Plurinational State of),,
+66,Brazil,South America,Brazil,,,South America,Brazil,South America,Brazil
+67,Chile,South America,Chile,,,South America,Chile,,
+68,Colombia,South America,Colombia,,,South America,Colombia,,
+69,Ecuador,South America,Ecuador,,,South America,Ecuador,South America,Ecuador
+70,Guyana,South America,Guyana,,,South America,Guyana,,
+71,Paraguay,South America,Paraguay,,,,,,
+72,Peru,South America,Peru,,,South America,Peru,South America,Peru
+73,Suriname,South America,Suriname,,,,,,
+74,Uruguay,South America,Uruguay,,,South America,Uruguay,South America,Uruguay
+75,Venezuela,South America,Venezuela (Bolivarian Republic of),,,South America,Venezuela (Bolivarian Republic of),South America,Venezuela (Bolivarian Republic of)
+76,Bangladesh,South Asia,Bangladesh,,,,,,
+77,Bhutan,South Asia,Bhutan,,,,,South Asia,Bhutan
+78,Maldives,South Asia,Maldives,,,,,,
+79,Sri Lanka,South Asia,Sri Lanka,South Asia,Sri Lanka,,,,
+80,Iran,South-West Asia,Iran (Islamic Republic of),,,,,South-West Asia,Iran (Islamic Republic of)
+81,Albania,Southeast Europe,Albania,,,,,Southeast Europe,Albania
+82,Bosnia and Herzegovina,Southeast Europe,Bosnia and Herzegovina,,,Southeast Europe,Bosnia and Herzegovina,Southeast Europe,Bosnia and Herzegovina
+83,Bulgaria,Southeast Europe,Bulgaria,Southeast Europe,Bulgaria,Southeast Europe,Bulgaria,Southeast Europe,Bulgaria
+84,Croatia,Southeast Europe,Croatia,,,Southeast Europe,Croatia,Southeast Europe,Croatia
+85,Montenegro,Southeast Europe,Montenegro,,,Southeast Europe,Montenegro,Southeast Europe,Montenegro
+86,Romania,Southeast Europe,Romania,Southeast Europe,Romania,Southeast Europe,Romania,Southeast Europe,Romania
+87,Serbia,Southeast Europe,Serbia,,,Southeast Europe,Serbia,Southeast Europe,Serbia
+88,Macedonia,Southeast Europe,The former Yugoslav Republic of Macedonia,,,,,,
+89,Turkey,Southeast Europe,Turkey,,,,,Southeast Europe,Turkey
+90,South Africa,Southern Africa,South Africa,,,,,,
+91,Zambia,Southern Africa,Zambia,,,,,,
+92,Austria,West & Central Europe,Austria,,,,,West & Central Europe,Austria
+93,Belgium,West & Central Europe,Belgium,West & Central Europe,Belgium,West & Central Europe,Belgium,West & Central Europe,Belgium
+94,Cyprus,West & Central Europe,Cyprus,,,West & Central Europe,Cyprus,West & Central Europe,Cyprus
+95,Czech Republic,West & Central Europe,Czech Republic,West & Central Europe,Czech Republic,West & Central Europe,Czech Republic,West & Central Europe,Czech Republic
+96,Denmark,West & Central Europe,Denmark,,,West & Central Europe,Denmark,West & Central Europe,Denmark
+97,Estonia,West & Central Europe,Estonia,,,West & Central Europe,Estonia,West & Central Europe,Estonia
+98,Finland,West & Central Europe,Finland,,,West & Central Europe,Finland,West & Central Europe,Finland
+99,France,West & Central Europe,France,West & Central Europe,France,West & Central Europe,France,West & Central Europe,France
+100,Germany,West & Central Europe,Germany,,,West & Central Europe,Germany,West & Central Europe,Germany
+101,Greece,West & Central Europe,Greece,,,West & Central Europe,Greece,West & Central Europe,Greece
+102,Greenland,West & Central Europe,Greenland,,,,,,
+103,Hungary,West & Central Europe,Hungary,West & Central Europe,Hungary,,,West & Central Europe,Hungary
+104,Iceland,West & Central Europe,Iceland,,,West & Central Europe,Iceland,West & Central Europe,Iceland
+105,Ireland,West & Central Europe,Ireland,West & Central Europe,Ireland,West & Central Europe,Ireland,West & Central Europe,Ireland
+106,Italy,West & Central Europe,Italy,West & Central Europe,Italy,West & Central Europe,Italy,West & Central Europe,Italy
+107,Latvia,West & Central Europe,Latvia,West & Central Europe,Latvia,West & Central Europe,Latvia,West & Central Europe,Latvia
+108,Lithuania,West & Central Europe,Lithuania,,,West & Central Europe,Lithuania,West & Central Europe,Lithuania
+109,Luxembourg,West & Central Europe,Luxembourg,,,West & Central Europe,Luxembourg,West & Central Europe,Luxembourg
+110,Malta,West & Central Europe,Malta,,,West & Central Europe,Malta,West & Central Europe,Malta
+111,Netherlands,West & Central Europe,Netherlands,,,West & Central Europe,Netherlands,West & Central Europe,Netherlands
+112,Norway,West & Central Europe,Norway,,,West & Central Europe,Norway,West & Central Europe,Norway
+113,Poland,West & Central Europe,Poland,West & Central Europe,Poland,West & Central Europe,Poland,West & Central Europe,Poland
+114,Portugal,West & Central Europe,Portugal,West & Central Europe,Portugal,West & Central Europe,Portugal,West & Central Europe,Portugal
+115,Slovakia,West & Central Europe,Slovakia,,,West & Central Europe,Slovakia,West & Central Europe,Slovakia
+116,Slovenia,West & Central Europe,Slovenia,,,West & Central Europe,Slovenia,West & Central Europe,Slovenia
+117,Spain,West & Central Europe,Spain,West & Central Europe,Spain,West & Central Europe,Spain,West & Central Europe,Spain
+118,Sweden,West & Central Europe,Sweden,,,,,West & Central Europe,Sweden
+119,Switzerland,West & Central Europe,Switzerland,,,,,West & Central Europe,Switzerland
+120,UK,West & Central Europe,United Kingdom (England and Wales),West & Central Europe,United Kingdom (England and Wales),West & Central Europe,United Kingdom (England),West & Central Europe,United Kingdom
+121,,West & Central Europe,United Kingdom (Northern Ireland),West & Central Europe,United Kingdom (Northern Ireland),,,,
+122,,West & Central Europe,United Kingdom (Scotland),West & Central Europe,United Kingdom (Scotland),West & Central Europe,United Kingdom (Scotland),,
+123,Burkina Faso,West and Central Africa,Burkina Faso,,,,,,
+124,Cape Verde,West and Central Africa,Cabo Verde,,,,,,
+125,Democratic Republic of the Congo,West and Central Africa,Democratic Republic of the Congo,,,,,,
+126,Liberia,West and Central Africa,Liberia,,,,,,
+127,Nigeria,West and Central Africa,Nigeria,West and Central Africa,Nigeria,,,,
+128,Sierra Leone,West and Central Africa,Sierra Leone,,,,,,
+129,Togo,West and Central Africa,Togo,,,,,,
+130,Liechtenstein,,,,,West & Central Europe,Liechtenstein,West & Central Europe,Liechtenstein
+131,Vietnam,,,,,,,East and South-East Asia,Viet Nam
+132,Qatar,,,,,,,Near and Middle East,Qatar
+133,Jordan,,,,,,,Near and Middle East /South-West Asia,Jordan
+134,Oman,,,,,,,Near and Middle East /South-West Asia,Oman
+135,Macedonia,,,,,,,Southeast Europe,Macedonia (TFYR)
+136,Andorra,,,,,,,West & Central Europe,Andorra
+137,,,,,,,,West & Central Europe,Gibraltar
+138,Monaco,,,,,,,West & Central Europe,Monaco
