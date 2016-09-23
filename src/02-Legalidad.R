@@ -62,6 +62,6 @@ gg <- ggplot() +
   theme_minimal() + 
   theme(axis.text = element_blank())+
   ylab(NULL) + xlab(NULL)
-ggsave(filename = "graphs/mapas_unodc/indice_prom.png", gg, width = 9, height = 8)
+ggsave(filename = "graphs/indice_legalidad.png", gg, width = 9, height = 8)
 
 
