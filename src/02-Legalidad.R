@@ -43,7 +43,8 @@ claves <- map_data(map="world") %>%
 write.csv(claves,file="data/legalidad/claves.csv")
 
 ### Se carga legality.csv con las claves de id.ggmap
-legalidad <- read.csv("data/legalidad/legality.csv",stringsAsFactors = FALSE)
+legalidad <- read.csv("data/legalidad/legality.csv",stringsAsFactors = FALSE) %>% 
+  mutate(ind.leg.w = poss*0.1+sale*0.4+cult*0.2+tran*0.3)
 
 # Map world
 tab.map <- map_data(map="world") %>% 
@@ -53,7 +54,7 @@ tab.map <- map_data(map="world") %>%
   )
 gg <- ggplot() + 
   geom_map(data = tab.map, map = tab.map, 
-           aes(map_id=region, x=long, y=lat, fill=ind.leg)) + 
+           aes(map_id=region, x=long, y=lat, fill=ind.leg.w)) + 
   scale_fill_gradient(guide = "colourbar", 
                       high = '#003366', low = '#99CCFF', 
                       na.value = 'gray90', 
