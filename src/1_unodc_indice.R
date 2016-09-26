@@ -218,7 +218,7 @@ tab.indice <- tab.union.imps %>%
                           youth.cannabis, prision.annual)),
          acum.geom = geometric.mean(c(general.cannabis, death.rate, 
                           youth.cannabis, prision.annual))
-         )%>% 
+         ) %>% 
   ungroup %>% 
   mutate(indice.prom = 100*acum.prom/mean(acum.prom)) %>% 
   arrange(indice.prom)
@@ -238,6 +238,7 @@ qplot(Comp.1, acum.prom, data = tab.indice) +
 cache('tab.indice')
 
 arrange(tab.indice, desc(indice.prom))
+cache('tab.map')
 
 # Map world
 tab.map <- map_data(map="world") %>% 
@@ -245,7 +246,7 @@ tab.map <- map_data(map="world") %>%
   left_join(
     tab.indice, by = c("region"="id.ggmap")
   )
-cache('tab.map')
+
 gg <- ggplot() + 
   geom_map(data = tab.map, map = tab.map, 
            aes(map_id=region, x=long, y=lat, fill=indice.prom)) + 
