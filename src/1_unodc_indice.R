@@ -1,7 +1,7 @@
 library(ProjectTemplate)
 reload.project()
 
-options("scipen"=999)
+#options("scipen"=999)
 
 head(df.deaths)
 head(df.general)
@@ -214,21 +214,30 @@ tab.indice <- tab.union.imps %>%
   filter(id.country != 135) %>% 
   tbl_df() %>% 
   group_by(id.country) %>% 
-  mutate(acum.prom = mean(general.cannabis, death.rate, 
-                          youth.cannabis, prision.annual)) %>% 
+  mutate(acum.prom = mean( c(general.cannabis, death.rate, 
+                          youth.cannabis, prision.annual)),
+         acum.geom = geometric.mean(c(general.cannabis, death.rate, 
+                          youth.cannabis, prision.annual))
+         )%>% 
   ungroup %>% 
   mutate(indice.prom = 100*acum.prom/mean(acum.prom)) %>% 
   arrange(indice.prom)
   
-pca.ind <- princomp(tab.indice %>% select(general.cannabis:prision.annual))
+pca.ind <- princomp(tab.indice %>% select(general.cannabis, youth.cannabis, prision.annual), cor = T)
 summary(pca.ind)
+ggbiplot(pca.ind)
 
 tab.indice %<>% 
   cbind(pca.ind$scores) %>% 
-  tbl_df()
-qplot(indice.prom, Comp.1, data = tab.indice) + 
-  geom_text(aes(label = id.ggmap), check_overlap = T)
+  tbl_df() %>% 
+  group_by(id.ggmap) %>% 
+  mutate(comp.pond = sum(Comp.1*.57, Comp.2*.43))
+  
+qplot(Comp.1, acum.prom, data = tab.indice) + 
+  geom_text(aes(label = id.ggmap), check_overlap = F)
 cache('tab.indice')
+
+arrange(tab.indice, desc(indice.prom))
 
 # Map world
 tab.map <- map_data(map="world") %>% 
@@ -236,6 +245,7 @@ tab.map <- map_data(map="world") %>%
   left_join(
     tab.indice, by = c("region"="id.ggmap")
   )
+cache('tab.map')
 gg <- ggplot() + 
   geom_map(data = tab.map, map = tab.map, 
            aes(map_id=region, x=long, y=lat, fill=indice.prom)) + 
@@ -249,3 +259,13 @@ gg <- ggplot() +
   ylab(NULL) + xlab(NULL)
 ggsave(filename = "graphs/mapas_unodc/indice_prom.png", gg, width = 9, height = 8)
 
+ggplot() + 
+  geom_map(data = tab.map, map = tab.map, 
+           aes(map_id=region, x=long, y=lat, fill=prision.annual)) + 
+  scale_fill_gradient(guide = "colourbar", 
+                      high = '#003366', low = '#99CCFF', 
+                      na.value = 'gray90') + 
+  coord_equal()  +
+  theme_minimal() + 
+  theme(axis.text = element_blank())+
+  ylab(NULL) + xlab(NULL)
